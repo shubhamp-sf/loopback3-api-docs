@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/utils.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/utils.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Copyright IBM Corp. 2015,2019. All Rights Reserved.
+// Node module: loopback
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
+'use strict';
+
+exports.createPromiseCallback = createPromiseCallback;
+exports.uploadInChunks = uploadInChunks;
+exports.downloadInChunks = downloadInChunks;
+exports.concatResults = concatResults;
+
+const Promise = require('bluebird');
+const async = require('async');
+
+function createPromiseCallback() {
+  let cb;
+  const promise = new Promise(function(resolve, reject) {
+    cb = function(err, data) {
+      if (err) return reject(err);
+      return resolve(data);
+    };
+  });
+  cb.promise = promise;
+  return cb;
+}
+
+function throwPromiseNotDefined() {
+  throw new Error(
+    'Your Node runtime does support ES6 Promises. ' +
+    'Set "global.Promise" to your preferred implementation of promises.',
+  );
+}
+
+/**
+ * Divide an async call with large array into multiple calls using smaller chunks
+ * @param {Array} largeArray - the large array to be chunked
+ * @param {Number} chunkSize - size of each chunks
+ * @param {Function} processFunction - the function to be called multiple times
+ * @param {Function} cb - the callback
+ */
+function uploadInChunks(largeArray, chunkSize, processFunction, cb) {
+  const chunkArrays = [];
+
+  if (!chunkSize || chunkSize &lt; 1 || largeArray.length &lt;= chunkSize) {
+    // if chunking not required
+    processFunction(largeArray, cb);
+  } else {
+    // copying so that the largeArray object does not get affected during splice
+    const copyOfLargeArray = [].concat(largeArray);
+
+    // chunking to smaller arrays
+    while (copyOfLargeArray.length > 0) {
+      chunkArrays.push(copyOfLargeArray.splice(0, chunkSize));
+    }
+
+    const tasks = chunkArrays.map(function(chunkArray) {
+      return function(previousResults, chunkCallback) {
+        const lastArg = arguments[arguments.length - 1];
+
+        if (typeof lastArg === 'function') {
+          chunkCallback = lastArg;
+        }
+
+        processFunction(chunkArray, function(err, results) {
+          if (err) {
+            return chunkCallback(err);
+          }
+
+          // if this is the first async waterfall call or if previous results was not defined
+          if (typeof previousResults === 'function' || typeof previousResults === 'undefined' ||
+            previousResults === null) {
+            previousResults = results;
+          } else if (results) {
+            previousResults = concatResults(previousResults, results);
+          }
+
+          chunkCallback(err, previousResults);
+        });
+      };
+    });
+
+    async.waterfall(tasks, cb);
+  }
+}
+
+/**
+ * Page async download calls
+ * @param {Object} filter - filter object used for the async call
+ * @param {Number} chunkSize - size of each chunks
+ * @param {Function} processFunction - the function to be called multiple times
+ * @param {Function} cb - the callback
+ */
+function downloadInChunks(filter, chunkSize, processFunction, cb) {
+  let results = [];
+  filter = filter ? JSON.parse(JSON.stringify(filter)) : {};
+
+  if (!chunkSize || chunkSize &lt; 1) {
+    // if chunking not required
+    processFunction(filter, cb);
+  } else {
+    filter.skip = 0;
+    filter.limit = chunkSize;
+
+    processFunction(JSON.parse(JSON.stringify(filter)), pageAndConcatResults);
+  }
+
+  function pageAndConcatResults(err, pagedResults) {
+    if (err) {
+      return cb(err);
+    } else {
+      results = concatResults(results, pagedResults);
+      if (pagedResults.length >= chunkSize) {
+        filter.skip += pagedResults.length;
+        processFunction(JSON.parse(JSON.stringify(filter)), pageAndConcatResults);
+      } else {
+        cb(null, results);
+      }
+    }
+  }
+}
+
+/**
+ * Concat current results into previous results
+ * Assumption made here that the previous results and current results are homogeneous
+ * @param {Object|Array} previousResults
+ * @param {Object|Array} currentResults
+ */
+function concatResults(previousResults, currentResults) {
+  if (Array.isArray(currentResults)) {
+    previousResults = previousResults.concat(currentResults);
+  } else if (typeof currentResults === 'object') {
+    Object.keys(currentResults).forEach(function(key) {
+      previousResults[key] = concatResults(previousResults[key], currentResults[key]);
+    });
+  } else {
+    previousResults = currentResults;
+  }
+
+  return previousResults;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ACL.html">ACL</a></li><li><a href="AccessContext.html">AccessContext</a></li><li><a href="AccessRequest.html">AccessRequest</a></li><li><a href="AccessToken.html">AccessToken</a></li><li><a href="Application.html">Application</a></li><li><a href="Change.html">Change</a></li><li><a href="Change.Conflict.html">Conflict</a></li><li><a href="Checkpoint.html">Checkpoint</a></li><li><a href="Email.html">Email</a></li><li><a href="KeyValueModel.html">KeyValueModel</a></li><li><a href="LoopBackApplication.html">LoopBackApplication</a></li><li><a href="PersistedModel.html">PersistedModel</a></li><li><a href="Principal.html">Principal</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Role.html">Role</a></li><li><a href="RoleMapping.html">RoleMapping</a></li><li><a href="Scope.html">Scope</a></li><li><a href="User.html">User</a></li><li><a href="global.html#loopback">loopback</a></li><li><a href="module.exports-Model.html">Model</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Connector">Connector</a></li><li><a href="global.html#EventEmitter">EventEmitter</a></li><li><a href="global.html#MailConnector">MailConnector</a></li><li><a href="global.html#Memory">Memory</a></li><li><a href="global.html#concatResults">concatResults</a></li><li><a href="global.html#downloadInChunks">downloadInChunks</a></li><li><a href="global.html#rest">rest</a></li><li><a href="global.html#status">status</a></li><li><a href="global.html#token">token</a></li><li><a href="global.html#uploadInChunks">uploadInChunks</a></li><li><a href="global.html#urlNotFound">urlNotFound</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Mar 23 2023 11:48:49 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

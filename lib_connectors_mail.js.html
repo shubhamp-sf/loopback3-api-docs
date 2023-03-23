@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/connectors/mail.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/connectors/mail.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Copyright IBM Corp. 2013,2019. All Rights Reserved.
+// Node module: loopback
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
+/**
+ * Dependencies.
+ */
+
+'use strict';
+const g = require('../globalize');
+const mailer = require('nodemailer');
+const assert = require('assert');
+const debug = require('debug')('loopback:connector:mail');
+const loopback = require('../loopback');
+
+/**
+ * Export the MailConnector class.
+ */
+
+module.exports = MailConnector;
+
+/**
+ * Create an instance of the connector with the given `settings`.
+ */
+
+function MailConnector(settings) {
+  assert(typeof settings === 'object', 'cannot initialize MailConnector without a settings object');
+
+  let transports = settings.transports;
+
+  // if transports is not in settings object AND settings.transport exists
+  if (!transports &amp;&amp; settings.transport) {
+    // then wrap single transport in an array and assign to transports
+    transports = [settings.transport];
+  }
+
+  if (!transports) {
+    transports = [];
+  }
+
+  this.transportsIndex = {};
+  this.transports = [];
+
+  if (loopback.isServer) {
+    transports.forEach(this.setupTransport.bind(this));
+  }
+}
+
+MailConnector.initialize = function(dataSource, callback) {
+  dataSource.connector = new MailConnector(dataSource.settings);
+  callback();
+};
+
+MailConnector.prototype.DataAccessObject = Mailer;
+
+/**
+ * Add a transport to the available transports. See https://github.com/andris9/Nodemailer#setting-up-a-transport-method.
+ *
+ * Example:
+ *
+ *   Email.setupTransport({
+ *       type: "SMTP",
+ *       host: "smtp.gmail.com", // hostname
+ *       secureConnection: true, // use SSL
+ *       port: 465, // port for secure SMTP
+ *       alias: "gmail", // optional alias for use with 'transport' option when sending
+ *       auth: {
+ *           user: "gmail.user@gmail.com",
+ *           pass: "userpass"
+ *       }
+ *   });
+ *
+ */
+
+MailConnector.prototype.setupTransport = function(setting) {
+  const connector = this;
+  connector.transports = connector.transports || [];
+  connector.transportsIndex = connector.transportsIndex || {};
+
+  let transport;
+  const transportType = (setting.type || 'STUB').toLowerCase();
+  if (transportType === 'smtp') {
+    transport = mailer.createTransport(setting);
+  } else {
+    const transportModuleName = 'nodemailer-' + transportType + '-transport';
+    const transportModule = require(transportModuleName);
+    transport = mailer.createTransport(transportModule(setting));
+  }
+
+  connector.transportsIndex[setting.alias || setting.type] = transport;
+  connector.transports.push(transport);
+};
+
+function Mailer() {
+
+}
+
+/**
+ * Get a transport by name.
+ *
+ * @param {String} name
+ * @return {Transport} transport
+ */
+
+MailConnector.prototype.transportForName = function(name) {
+  return this.transportsIndex[name];
+};
+
+/**
+ * Get the default transport.
+ *
+ * @return {Transport} transport
+ */
+
+MailConnector.prototype.defaultTransport = function() {
+  return this.transports[0] || this.stubTransport;
+};
+
+/**
+ * Send an email with the given `options`.
+ *
+ * Example Options:
+ *
+ * {
+ *   from: "Fred Foo ✔ &lt;foo@blurdybloop.com>", // sender address
+ *   to: "bar@blurdybloop.com, baz@blurdybloop.com", // list of receivers
+ *   subject: "Hello ✔", // Subject line
+ *   text: "Hello world ✔", // plaintext body
+ *   html: "&lt;b>Hello world ✔&lt;/b>", // html body
+ *   transport: "gmail", // See 'alias' option above in setupTransport
+ * }
+ *
+ * See https://github.com/andris9/Nodemailer for other supported options.
+ *
+ * @param {Object} options
+ * @param {Function} callback Called after the e-mail is sent or the sending failed
+ */
+
+Mailer.send = function(options, fn) {
+  const dataSource = this.dataSource;
+  const settings = dataSource &amp;&amp; dataSource.settings;
+  const connector = dataSource.connector;
+  assert(connector, 'Cannot send mail without a connector!');
+
+  let transport = connector.transportForName(options.transport);
+
+  if (!transport) {
+    transport = connector.defaultTransport();
+  }
+
+  if (debug.enabled || settings &amp;&amp; settings.debug) {
+    g.log('Sending Mail:');
+    if (options.transport) {
+      console.log(g.f('\t TRANSPORT:%s', options.transport));
+    }
+    g.log('\t TO:%s', options.to);
+    g.log('\t FROM:%s', options.from);
+    g.log('\t SUBJECT:%s', options.subject);
+    g.log('\t TEXT:%s', options.text);
+    g.log('\t HTML:%s', options.html);
+  }
+
+  if (transport) {
+    assert(transport.sendMail,
+      'You must supply an Email.settings.transports containing a valid transport');
+    transport.sendMail(options, fn);
+  } else {
+    g.warn('Warning: No email transport specified for sending email.' +
+      ' Setup a transport to send mail messages.');
+    process.nextTick(function() {
+      fn(null, options);
+    });
+  }
+};
+
+/**
+ * Send an email instance using `modelInstance.send()`.
+ */
+
+Mailer.prototype.send = function(fn) {
+  this.constructor.send(this, fn);
+};
+
+/**
+ * Access the node mailer object.
+ */
+
+MailConnector.mailer =
+MailConnector.prototype.mailer =
+Mailer.mailer =
+Mailer.prototype.mailer = mailer;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ACL.html">ACL</a></li><li><a href="AccessContext.html">AccessContext</a></li><li><a href="AccessRequest.html">AccessRequest</a></li><li><a href="AccessToken.html">AccessToken</a></li><li><a href="Application.html">Application</a></li><li><a href="Change.html">Change</a></li><li><a href="Change.Conflict.html">Conflict</a></li><li><a href="Checkpoint.html">Checkpoint</a></li><li><a href="Email.html">Email</a></li><li><a href="KeyValueModel.html">KeyValueModel</a></li><li><a href="LoopBackApplication.html">LoopBackApplication</a></li><li><a href="PersistedModel.html">PersistedModel</a></li><li><a href="Principal.html">Principal</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Role.html">Role</a></li><li><a href="RoleMapping.html">RoleMapping</a></li><li><a href="Scope.html">Scope</a></li><li><a href="User.html">User</a></li><li><a href="global.html#loopback">loopback</a></li><li><a href="module.exports-Model.html">Model</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Connector">Connector</a></li><li><a href="global.html#EventEmitter">EventEmitter</a></li><li><a href="global.html#MailConnector">MailConnector</a></li><li><a href="global.html#Memory">Memory</a></li><li><a href="global.html#concatResults">concatResults</a></li><li><a href="global.html#downloadInChunks">downloadInChunks</a></li><li><a href="global.html#rest">rest</a></li><li><a href="global.html#status">status</a></li><li><a href="global.html#token">token</a></li><li><a href="global.html#uploadInChunks">uploadInChunks</a></li><li><a href="global.html#urlNotFound">urlNotFound</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Mar 23 2023 11:48:49 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

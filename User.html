@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: User</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: User</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>User<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    
+    <h4 class="name" id="User"><span class="type-signature"></span>new User<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Built-in User model.
+Extends LoopBack [PersistedModel](#persistedmodel-new-persistedmodel).
+
+Default `User` ACLs.
+
+- DENY EVERYONE `*`
+- ALLOW EVERYONE `create`
+- ALLOW OWNER `deleteById`
+- ALLOW EVERYONE `login`
+- ALLOW EVERYONE `logout`
+- ALLOW OWNER `findById`
+- ALLOW OWNER `updateAttributes`
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>username</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Must be unique.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Hidden from remote clients.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>email</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Must be valid email.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>emailVerified</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set when a user's email has been verified via `confirm()`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>verificationToken</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Set when `verify()` is called.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realm</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The namespace the user belongs to. See [Partitioning users with realms](http://loopback.io/doc/en/lb2/Partitioning-users-with-realms.html) for details.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Extends the `Model.settings` object.
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>emailVerificationRequired</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Require the email verification
+process before allowing a login.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ttl</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Default time to live (in seconds) for the `AccessToken` created by `User.login() / user.createAccessToken()`.
+Default is `1209600` (2 weeks)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxTTL</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The max value a user can request a token to be alive / valid for.
+Default is `31556926` (1 year)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realmRequired</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Require a realm when logging in a user.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realmDelimiter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">When set a realm is required.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resetPasswordTokenTTL</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Time to live for password reset `AccessToken`. Default is `900` (15 minutes).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>saltWorkFactor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The `bcrypt` salt work factor. Default is `10`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>caseSensitiveEmail</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Enable case sensitive email.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="common_models_user.js.html">common/models/user.js</a>, <a href="common_models_user.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".generateVerificationToken"><span class="type-signature">(static) </span>generateVerificationToken<span class="signature">(user, options, cb)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    A default verification token generator which accepts the user the token is
+being generated for and a callback function to indicate completion.
+This one uses the crypto library and 64 random bytes (converted to hex)
+for the token. When used in combination with the user.verify() method this
+function will be called with the `user` object as it's context (`this`).
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The User this token is being generated for.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">remote context options.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cb</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The generator must pass back the new token with this function call.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="common_models_user.js.html">common/models/user.js</a>, <a href="common_models_user.js.html#line892">line 892</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".getVerifyOptions"><span class="type-signature">(static) </span>getVerifyOptions<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns default verification options to use when calling User.prototype.verify()
+from remote method /user/:id/verify.
+
+NOTE: the User.getVerifyOptions() method can also be used to ease the
+building of identity verification options.
+
+```js
+var verifyOptions = MyUser.getVerifyOptions();
+user.verify(verifyOptions);
+```
+
+This is the full list of possible params, with example values
+
+```js
+{
+  type: 'email',
+  mailer: {
+    send(verifyOptions, options, cb) {
+      // send the email
+      cb(err, result);
+    }
+  },
+  to: 'test@email.com',
+  from: 'noreply@email.com'
+  subject: 'verification email subject',
+  text: 'Please verify your email by opening this link in a web browser',
+  headers: {'Mime-Version': '1.0'},
+  template: 'path/to/template.ejs',
+  templateFn: function(verifyOptions, options, cb) {
+    cb(null, 'some body template');
+  }
+  redirect: '/',
+  verifyHref: 'http://localhost:3000/api/user/confirm',
+  host: 'localhost'
+  protocol: 'http'
+  port: 3000,
+  restApiRoot= '/api',
+  generateVerificationToken: function (user, options, cb) {
+    cb(null, 'random-token');
+  }
+}
+```
+
+NOTE: param `to` internally defaults to user's email but can be overriden for
+test purposes or advanced customization.
+
+Static default params can be modified in your custom user model json definition
+using `settings.verifyOptions`. Any default param can be programmatically modified
+like follows:
+
+```js
+customUserModel.getVerifyOptions = function() {
+  const base = MyUser.base.getVerifyOptions();
+  return Object.assign({}, base, {
+    // custom values
+  });
+}
+```
+
+Usually you should only require to modify a subset of these params
+See `User.verify()` and `User.prototype.verify()` doc for params reference
+and their default values.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="common_models_user.js.html">common/models/user.js</a>, <a href="common_models_user.js.html#line629">line 629</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".normalizeCredentials"><span class="type-signature">(static) </span>normalizeCredentials<span class="signature">(credentials, realmRequired, realmDelimiter)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Normalize the credentials
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>credentials</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The credential object</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realmRequired</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realmDelimiter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The realm delimiter, if not set, no realm is needed</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="common_models_user.js.html">common/models/user.js</a>, <a href="common_models_user.js.html#line152">line 152</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The normalized credential object
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ACL.html">ACL</a></li><li><a href="AccessContext.html">AccessContext</a></li><li><a href="AccessRequest.html">AccessRequest</a></li><li><a href="AccessToken.html">AccessToken</a></li><li><a href="Application.html">Application</a></li><li><a href="Change.html">Change</a></li><li><a href="Change.Conflict.html">Conflict</a></li><li><a href="Checkpoint.html">Checkpoint</a></li><li><a href="Email.html">Email</a></li><li><a href="KeyValueModel.html">KeyValueModel</a></li><li><a href="LoopBackApplication.html">LoopBackApplication</a></li><li><a href="PersistedModel.html">PersistedModel</a></li><li><a href="Principal.html">Principal</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Role.html">Role</a></li><li><a href="RoleMapping.html">RoleMapping</a></li><li><a href="Scope.html">Scope</a></li><li><a href="User.html">User</a></li><li><a href="global.html#loopback">loopback</a></li><li><a href="module.exports-Model.html">Model</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Connector">Connector</a></li><li><a href="global.html#EventEmitter">EventEmitter</a></li><li><a href="global.html#MailConnector">MailConnector</a></li><li><a href="global.html#Memory">Memory</a></li><li><a href="global.html#concatResults">concatResults</a></li><li><a href="global.html#downloadInChunks">downloadInChunks</a></li><li><a href="global.html#rest">rest</a></li><li><a href="global.html#status">status</a></li><li><a href="global.html#token">token</a></li><li><a href="global.html#uploadInChunks">uploadInChunks</a></li><li><a href="global.html#urlNotFound">urlNotFound</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Mar 23 2023 11:48:49 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
